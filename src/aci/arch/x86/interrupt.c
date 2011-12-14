@@ -19,7 +19,7 @@ int aci_arch_interrupt_register (int interrupt)
         ax86_irq_install_handler(1, aci_arch_interrupt_handler);
         break;
     case ACI_INT_PAGEFAULT :
-        break; // isrs will check aci_x86_interrupt_set
+        break; // isrs will check aci_arch_interrupt_set
     }
     return 0;
 }
