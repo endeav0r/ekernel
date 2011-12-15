@@ -16,7 +16,7 @@ void * aci_memset (void * dest, unsigned char c, int n)
     return dest;
 }
 
-char * strreverse (char * s)
+static inline char * strreverse (char * s)
 {
     int first = 0;
     int last = aci_strlen(s) - 1;
@@ -85,6 +85,7 @@ int aci_sprintf (char * str, const char * format, ...)
         length++;
     }
     *s = '\0';
+    va_end(args);
 
     return length;
 }
@@ -123,3 +124,25 @@ int aci_strlen (const char * str)
     return (int) (c - str);
 }
 
+int aci_strncmp (const char * s1, const char * s2, int nbytes)
+{
+    int i;
+    for (i = 0; i < nbytes; i++) {
+        if ((s1 == '\0') && (s2 == '\0'))
+            return 0;
+        if (s1[i] != s2[i])
+            return s1[i] - s2[i];
+    }
+    return 0;
+}
+
+char * aci_strncpy (char * dest, const char * src, int nbytes)
+{
+    int i;
+    for (i = 0; i < nbytes; i++) {
+        dest[i] = src[i];
+        if (src[i] == '\0')
+            break;
+    }
+    return dest;
+}

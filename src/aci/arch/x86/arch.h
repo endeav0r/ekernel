@@ -1,6 +1,11 @@
 #ifndef arch_HEADER
 #define arch_HEADER
 
+typedef unsigned int word_t;
+
+#define ACI_HEAP_BEGIN 0x400000 /* 4mb */
+#define ACI_HEAP_SIZE  0x800000 /* 8mb */
+
 /** performs all architecture initialization calls
 * @return 0 on success, 1 otherwise
 */

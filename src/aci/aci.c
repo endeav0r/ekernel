@@ -1,10 +1,9 @@
 #include "aci.h"
 #include "config.h"
 #include "stdlib/stdlib.h"
+#include "common/debug.h"
 
-aci_t aci;
-
-aci_t * aci_init ()
+void aci_init ()
 {
     aci_vga_clear();
     aci_vga_write("ACI INIT\n");
@@ -13,7 +12,7 @@ aci_t * aci_init ()
 
     aci_stdlib_test();
 
-    return &aci;
+    aci_debug();
 }
 
 void aci_panic ()

@@ -18,7 +18,7 @@ int aci_interrupt_register (aci_callback callback, int interrupt)
     return aci_arch_interrupt_register(interrupt);
 }
 
-void aci_interrupt_handler (int interrupt, int args[4])
+void aci_interrupt_handler (int interrupt, word_t args[4])
 {
     char buf[16];
 

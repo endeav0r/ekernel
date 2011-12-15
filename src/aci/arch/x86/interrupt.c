@@ -1,3 +1,4 @@
+#include "arch.h"
 #include "interrupt.h"
 #include "isr.h"
 #include "../../config.h"
@@ -26,7 +27,7 @@ int aci_arch_interrupt_register (int interrupt)
 
 void aci_arch_interrupt_handler (struct ax86_irq_regs * regs)
 {
-    static int args[ACI_MAX_CPUS][4];
+    static word_t args[ACI_MAX_CPUS][4];
     switch (regs->int_no) {
     case 33 : // keyboard
         args[0][0] = ax86_inportb(0x60);

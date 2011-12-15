@@ -1,26 +1,24 @@
 #ifndef aci_HEADER
 #define aci_HEADER
 
+#include "config.h"
+
 #define ACI_INT_KEYBOARD  0
 #define ACI_INT_PAGEFAULT 1
 #define ACI_INT_NUM       2
 
-typedef void (* aci_callback) (int args[4]);
-
-typedef struct _aci_t {
-} aci_t;
-
+typedef void (* aci_callback) (word_t args[4]);
 
 
 /**********************
 * ACI FUNCTIONS       *
 **********************/
-aci_t * aci_init           ();
-void    aci_panic          ();
+void aci_init  ();
+void aci_panic ();
 
 // these functions are used internally by aci
 // you do not need to worry about them
-void    aci_interrupt_handler (int interrupt, int args[4]);
+void    aci_interrupt_handler (int interrupt, word_t args[4]);
 void    aci_interrupt_init    ();
 
 
@@ -38,6 +36,18 @@ void    aci_interrupt_init    ();
 */
 int aci_interrupt_register (aci_callback callback, int interrupt);
 
+
+/**********************
+* MMU FUNCTIONS       *
+**********************/
+
+/*
+* Architecture dependent defines
+* ACI_MEM_SIZE  <- total size in bytes of addressable memory
+* ACI_MEM_MIN   <- the smallest address available to the kernel. the rest
+*                  is reserved by aci.
+* ACI_PAGE_SIZE <- the size of each page
+*/
 
 
 /**********************
