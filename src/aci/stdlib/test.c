@@ -10,6 +10,7 @@ void aci_stdlib_testfail (const char * msg)
 void aci_stdlib_test ()
 {
     int i;
+    void * ptrs[100];
     unsigned char buf [64];
 
     aci_vga_write("aci stdlib tests ");
@@ -58,4 +59,18 @@ void aci_stdlib_test ()
     aci_vga_write(".");
 
     aci_vga_write(" pass\n");
+
+    aci_vga_write("malloc tests (only prints fails): ");
+
+    for (i = 0; i < 10; i++)
+        ptrs[i] = aci_malloc(i);
+
+    for (i = 0; i < 10; i++) {
+        if (aci_free(ptrs[i])) {
+            aci_sprintf(buf, "malloc fail on %x\n", i);
+            aci_vga_write(buf);
+        }
+    }
+
+    aci_vga_write("done\n");
 }

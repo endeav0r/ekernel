@@ -12,7 +12,7 @@
 * * @param x horizontal position for cursor, (0-79)
 * * @param y vertical position for cursor, (0-24)
 * 
-* void aci_vga_curosr (int x, int y);
+* void aci_vga_cursor (int x, int y);
 */
 
 int aci_vga_cursor_x = 0;
@@ -68,6 +68,7 @@ void aci_vga_clear ()
 {
     int i;
     for (i = 0; i < 80 * 25; i++) {
+        aci_vga_videoram[i * 2 + 1] = ACI_VGA_COLOR;
         aci_vga_videoram[i * 2] = ' ';
     }
     aci_vga_cursor_x = 0;

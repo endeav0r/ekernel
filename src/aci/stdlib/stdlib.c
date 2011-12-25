@@ -146,3 +146,19 @@ char * aci_strncpy (char * dest, const char * src, int nbytes)
     }
     return dest;
 }
+
+char * aci_strcat (char * dest, const char * src)
+{
+    char * d = dest;
+    const char * s = src;
+
+    while (*d != '\0')
+        d++;
+
+    while (*s != '\0')
+        *(d++) = *(s++);
+
+    *d = '\0';
+
+    return dest;
+}

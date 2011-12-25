@@ -8,6 +8,8 @@
 
 #define FILESYSTEM_FILEDES_MAX 8
 
+int fs_errno = 0;
+
 filesystem_calls_t fs_calls[1];
 filedes_t fs_filedes[FILESYSTEM_FILEDES_MAX];
 
@@ -27,11 +29,19 @@ void filesystem_init ()
     fs_calls[FS_RAMDISK].opendir  =
      (void * (* ) (void *, char *)) ramdisk_opendir;
     fs_calls[FS_RAMDISK].readdir  =
-     (char * (* ) (void *)) ramdisk_readdir;
+     (char * (* ) (void *))         ramdisk_readdir;
     fs_calls[FS_RAMDISK].closedir = 
-     (int (* ) (void *)) ramdisk_closedir;
+     (int (* ) (void *))            ramdisk_closedir;
     fs_calls[FS_RAMDISK].mkdir    =
-     (int (* ) (void *, char *)) ramdisk_mkdir;
+     (int (* ) (void *, char *))    ramdisk_mkdir;
+    fs_calls[FS_RAMDISK].open     =
+     (void * (* ) (void *, char *, int)) ramdisk_open;
+    fs_calls[FS_RAMDISK].close    =
+     (int (* ) (void *))            ramdisk_close;
+    fs_calls[FS_RAMDISK].write    =
+     (int (* ) (void *, const void *, int)) ramdisk_write;
+    fs_calls[FS_RAMDISK].read     =
+     (int (* ) (void *, void *, int))       ramdisk_read;
 
     for (i = 0; i < FILESYSTEM_FILEDES_MAX; i++)
         aci_memset(&(fs_filedes[i]), 0, sizeof(filedes_t));
@@ -97,18 +107,76 @@ int fs_mkdir (char * path)
     return fs_calls[FS_RAMDISK].mkdir(filesystem_root, path);
 }
 
+int fs_open (char * path, int oflag)
+{
+    DEBUG_STACK_TRACE("fs_open")
+
+    int fd;
+
+    for (fd = 0; fd < FILESYSTEM_FILEDES_MAX; fd++) {
+        if ((fs_filedes[fd].flags & FS_VALID) == 0)
+            break;
+    }
+
+    if (fd < FILESYSTEM_FILEDES_MAX) {
+        fs_filedes[fd].file =
+         fs_calls[FS_RAMDISK].open(filesystem_root, path, oflag);
+        if (fs_filedes[fd].file == NULL)
+            return -1;
+        fs_filedes[fd].flags = FS_VALID;
+        fs_filedes[fd].type = FS_RAMDISK;
+        return fd;
+    }
+
+    return -2;
+}
+
+int fs_close (int fd)
+{
+    DEBUG_STACK_TRACE("fs_close")
+
+    if ((fs_filedes[fd].flags & FS_VALID) == 0) {
+        fs_errno = FILESYSTEM_BAD_FD;
+        return -1;
+    }
+    fs_filedes[fd].flags = 0;
+    return fs_calls[fs_filedes[fd].type].closedir(fs_filedes[fd].file);
+}
+
+unsigned int fs_write (int fd, const void * buf, unsigned int nbyte)
+{
+    DEBUG_STACK_TRACE("fs_write")
+
+    if ((fs_filedes[fd].flags & FS_VALID) == 0) {
+        fs_errno = FILESYSTEM_BAD_FD;
+        return 0;
+    }
+    return fs_calls[fs_filedes[fd].type].write(fs_filedes[fd].file, buf, nbyte);
+}
+
+unsigned int fs_read (int fd, void * buf, unsigned int nbyte)
+{
+    DEBUG_STACK_TRACE("fs_read")
+
+    if ((fs_filedes[fd].flags & FS_VALID) == 0) {
+        fs_errno = FILESYSTEM_BAD_FD;
+        return 0;
+    }
+    return fs_calls[fs_filedes[fd].type].read(fs_filedes[fd].file, buf, nbyte);
+}
+
 char ** filesystem_paths (char * path)
 {
     DEBUG_STACK_TRACE("filesystem_paths")
 
     int i;
-    int items = 0;
+    int items = 1;
     int item_i;
     int item_size;
     // how many path items are there
 
-    if (path[0] == '/')
-        path = &(path[1]);
+    while (path[0] == '/')
+        path++;
 
     for (i = 0; i < aci_strlen(path); i++) {
         if (path[i] == '/')
